@@ -15,6 +15,7 @@
  */
 package com.amashchenko.maven.plugin.gitflow;
 
+import java.io.File;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -278,11 +279,12 @@ public abstract class AbstractGitFlowMojo extends AbstractMojo {
     private void initExecutables() {
         if (StringUtils.isBlank(cmdMvn.getExecutable())) {
             if (StringUtils.isBlank(mvnExecutable)) {
-                final String javaCommand = mavenSession.getSystemProperties().getProperty("sun.java.command", "");
-                final boolean wrapper = javaCommand.startsWith("org.apache.maven.wrapper.MavenWrapperMain");
-
-                if (wrapper) {
-                    mvnExecutable = "." + SystemUtils.FILE_SEPARATOR + "mvnw";
+                if (SystemUtils.IS_OS_UNIX
+                        && new File(".", "mvnw").isFile()) {
+                    mvnExecutable = "./mvnw";
+                } else if (SystemUtils.IS_OS_WINDOWS
+                        && new File(".", "mvnw.cmd").isFile()) {
+                    mvnExecutable = "mvnw.cmd";
                 } else {
                     mvnExecutable = "mvn";
                 }
